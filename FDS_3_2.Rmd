@@ -1,0 +1,76 @@
+---
+title: "FDS 3.2 Data Wrangling Exercise 2"
+author: "Oswaldo Salazar"
+date: "March 20, 2016"
+output: html_document
+---
+
+## Dealing with missing values
+
+This exercise uses the data from the Titanic database.
+
+### 0: Load the data in RStudio
+Saved the data set as a CSV file called titanic_original.csv and loaded it in RStudio into a data frame.
+
+```{r}
+titanic_original <- read.csv("~/Documents/Personal Documents/Personal/R/3_2_FDS_Exercise/titanic_original.csv")
+```
+
+### 1: Port of embarkation
+
+"The embarked column has one missing value, which is known to correspond to a passenger who actually embarked at Southampton. Find the missing value and replace it with S."
+
+The original database has 1310 records. The last one has all NA values so I eliminated it using:
+
+```{r}
+titanic_data = titanic_original[-1310,]
+```
+ Then assgined the new database to a new one called titanic.
+ 
+```{r}
+titanic <- titanic_data
+```
+Then I realized the column embraked was a factor class, so I converted it into a character class.
+```{r}
+class(titanic$embarked)
+titanic$embarked <- as.character(titanic$embarked)
+```
+After this, I changed all the blank values into "S".
+```{r}
+titanic$embarked <- ifelse(titanic$embarked == "", "S", titanic$embarked)
+```
+
+### 2: Age
+
+2.1 Calculated the mean age value, excluding the NAs, then assign this value to the NAs.
+
+```{r}
+age_mean <- mean(titanic$age, na.rm = TRUE)
+titanic$age <- ifelse(is.na(titanic$age), age_mean, titanic_data$age)
+```
+
+2.2 Other options would have been to choose a random value from 0 to 50, or to replace all with the same random value. Having the mean instead of any other value makes more sense since the missing values would probably also converge to this mean value.
+
+### 3: Lifeboat
+
+Changed all empty velues with NA.
+
+```{r}
+titanic$boat <- ifelse(titanic$boat == "", NA, titanic$boat)
+```
+
+### 4: Cabin
+
+A large portion of the cabins was assigned to the members of the 1st class, whereas the 2nd or 3rd class passenger didn't have one, mostly.
+
+Created a new column called has_cabin_number which has 1 if there is a cabin number, and 0 otherwise.
+
+```{r}
+titanic$has_cabin_number <- ifelse(titanic$cabin != "", 1,0)
+```
+
+### 6: Submit the project on Github
+
+```{r}
+write.csv(titanic, file = "titanic_clean.csv")
+```
